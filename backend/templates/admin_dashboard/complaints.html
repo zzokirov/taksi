@@ -1,0 +1,52 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block title %}Shikoyatlar — Barber Booking Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">Shikoyat va Moderatsiya</h3>
+</div>
+
+<div class="card card-custom">
+    <div class="table-responsive">
+        <table class="table table-custom table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Shikoyat qiluvchi</th>
+                    <th>Shikoyat qilingan</th>
+                    <th>Sabab</th>
+                    <th>Tafsilot</th>
+                    <th>Holati</th>
+                    <th>Sana</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in complaints %}
+                <tr>
+                    <td>#{{ c.id }}</td>
+                    <td><strong>{{ c.reporter.full_name }}</strong></td>
+                    <td><strong>{{ c.reported_user.full_name }}</strong></td>
+                    <td><span class="text-warning">{{ c.reason }}</span></td>
+                    <td>{{ c.details|truncatechars:60 }}</td>
+                    <td>
+                        {% if c.status == 'pending' %}
+                            <span class="badge bg-warning text-dark">Kutilmoqda</span>
+                        {% elif c.status == 'resolved' %}
+                            <span class="badge bg-success">Hal qilindi</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ c.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ c.created_at|date:"d.m.Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">Shikoyatlar mavjud emas</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

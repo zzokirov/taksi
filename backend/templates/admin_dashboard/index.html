@@ -1,0 +1,165 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block title %}Boshqaruv Paneli — Barber Booking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">Platforma Ko'rsatkichlari</h3>
+    <span class="text-muted"><i class="fa-regular fa-clock me-1"></i>Jonli statistika</span>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card card-custom p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small">Jami Foydalanuvchilar</span>
+                    <h3 class="fw-bold my-1 text-light">{{ total_users }}</h3>
+                </div>
+                <div class="p-3 rounded-circle bg-secondary bg-opacity-25 text-warning">
+                    <i class="fa-solid fa-users fa-lg"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card card-custom p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small">Sartaroshlar (Kutilmoqda)</span>
+                    <h3 class="fw-bold my-1 text-light">{{ total_barbers }} <span class="badge bg-warning text-dark fs-6">{{ pending_barbers }}</span></h3>
+                </div>
+                <div class="p-3 rounded-circle bg-secondary bg-opacity-25 text-info">
+                    <i class="fa-solid fa-user-tie fa-lg"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card card-custom p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small">Buyurtmalar (Bajarilgan)</span>
+                    <h3 class="fw-bold my-1 text-light">{{ total_appointments }} <span class="badge bg-success fs-6">{{ completed_appointments }}</span></h3>
+                </div>
+                <div class="p-3 rounded-circle bg-secondary bg-opacity-25 text-success">
+                    <i class="fa-regular fa-calendar-check fa-lg"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card card-custom p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small">Jami Aylanma (UZS)</span>
+                    <h3 class="fw-bold my-1 text-warning">{{ total_revenue|floatformat:0 }} UZS</h3>
+                </div>
+                <div class="p-3 rounded-circle bg-secondary bg-opacity-25 text-warning">
+                    <i class="fa-solid fa-coins fa-lg"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Pending Barbers Approvals -->
+    <div class="col-lg-6">
+        <div class="card card-custom h-100">
+            <div class="card-header border-secondary d-flex justify-content-between align-items-center bg-transparent py-3">
+                <h5 class="fw-bold mb-0 text-light"><i class="fa-solid fa-user-check me-2 text-warning"></i>Tasdiqlash Kutilayotgan Sartaroshlar</h5>
+                <a href="{% url 'dash-barbers' %}?status=pending" class="btn btn-outline-warning btn-sm">Barchasi</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-custom table-hover align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Sartarosh</th>
+                                <th>Telefon</th>
+                                <th>Sartaroshxona</th>
+                                <th>Amal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in pending_barber_list %}
+                            <tr>
+                                <td><strong>{{ b.user.full_name }}</strong></td>
+                                <td>{{ b.user.phone_number }}</td>
+                                <td>{{ b.barbershop_name|default:"Mustaqil" }}</td>
+                                <td>
+                                    <form method="POST" action="{% url 'dash-barber-verify' b.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="approve">
+                                        <button class="btn btn-success btn-sm"><i class="fa-solid fa-check"></i></button>
+                                    </form>
+                                    <form method="POST" action="{% url 'dash-barber-verify' b.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="reject">
+                                        <button class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-xmark"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">Kutilayotgan sartaroshlar yo'q</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Appointments -->
+    <div class="col-lg-6">
+        <div class="card card-custom h-100">
+            <div class="card-header border-secondary d-flex justify-content-between align-items-center bg-transparent py-3">
+                <h5 class="fw-bold mb-0 text-light"><i class="fa-regular fa-clock me-2 text-info"></i>So'nggi Qabullar</h5>
+                <a href="{% url 'dash-appointments' %}" class="btn btn-outline-info btn-sm">Barchasi</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-custom table-hover align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Mijoz</th>
+                                <th>Sartarosh</th>
+                                <th>Sana & Vaqt</th>
+                                <th>Holat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in recent_appointments %}
+                            <tr>
+                                <td>{{ a.customer.full_name }}</td>
+                                <td>{{ a.barber.user.full_name }}</td>
+                                <td>{{ a.appointment_date }} {{ a.start_time|time:"H:i" }}</td>
+                                <td>
+                                    {% if a.status == 'confirmed' %}
+                                        <span class="badge bg-success">Tasdiqlangan</span>
+                                    {% elif a.status == 'pending' %}
+                                        <span class="badge bg-warning text-dark">Kutilmoqda</span>
+                                    {% elif a.status == 'completed' %}
+                                        <span class="badge bg-info">Bajarilgan</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">{{ a.status }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">Hozircha buyurtmalar yo'q</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

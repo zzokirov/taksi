@@ -1,0 +1,67 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block title %}Buyurtmalar Monitoringi — Barber Booking Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">Buyurtmalar Monitoringi</h3>
+    <div class="btn-group">
+        <a href="?status=all" class="btn btn-sm {% if status_filter == 'all' %}btn-gold{% else %}btn-outline-secondary{% endif %}">Barchasi</a>
+        <a href="?status=confirmed" class="btn btn-sm {% if status_filter == 'confirmed' %}btn-success{% else %}btn-outline-secondary{% endif %}">Tasdiqlangan</a>
+        <a href="?status=pending" class="btn btn-sm {% if status_filter == 'pending' %}btn-warning{% else %}btn-outline-secondary{% endif %}">Kutilmoqda</a>
+        <a href="?status=completed" class="btn btn-sm {% if status_filter == 'completed' %}btn-info{% else %}btn-outline-secondary{% endif %}">Bajarilgan</a>
+        <a href="?status=cancelled" class="btn btn-sm {% if status_filter == 'cancelled' %}btn-danger{% else %}btn-outline-secondary{% endif %}">Bekor qilingan</a>
+    </div>
+</div>
+
+<div class="card card-custom">
+    <div class="table-responsive">
+        <table class="table table-custom table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Mijoz</th>
+                    <th>Sartarosh</th>
+                    <th>Xizmat</th>
+                    <th>Narx</th>
+                    <th>Sana & Vaqt</th>
+                    <th>Holat</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in appointments %}
+                <tr>
+                    <td>#{{ a.id }}</td>
+                    <td>
+                        <strong>{{ a.customer.full_name }}</strong>
+                        <div class="small text-muted">{{ a.customer.phone_number }}</div>
+                    </td>
+                    <td>
+                        <strong>{{ a.barber.user.full_name }}</strong>
+                        <div class="small text-muted">{{ a.barber.user.phone_number }}</div>
+                    </td>
+                    <td>{{ a.service_name }} ({{ a.service_duration_minutes }} daq)</td>
+                    <td><strong class="text-warning">{{ a.service_price|floatformat:0 }} UZS</strong></td>
+                    <td>{{ a.appointment_date }} {{ a.start_time|time:"H:i" }} - {{ a.end_time|time:"H:i" }}</td>
+                    <td>
+                        {% if a.status == 'confirmed' %}
+                            <span class="badge bg-success">Tasdiqlangan</span>
+                        {% elif a.status == 'pending' %}
+                            <span class="badge bg-warning text-dark">Kutilmoqda</span>
+                        {% elif a.status == 'completed' %}
+                            <span class="badge bg-info">Bajarilgan</span>
+                        {% else %}
+                            <span class="badge bg-danger">{{ a.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">Buyurtmalar topilmadi</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

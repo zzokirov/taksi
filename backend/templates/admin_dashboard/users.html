@@ -1,0 +1,73 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block title %}Foydalanuvchilar — Barber Booking Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">Foydalanuvchilarni Boshqarish</h3>
+    <div class="btn-group">
+        <a href="?role=all" class="btn btn-sm {% if role_filter == 'all' %}btn-gold{% else %}btn-outline-secondary{% endif %}">Barchasi</a>
+        <a href="?role=CUSTOMER" class="btn btn-sm {% if role_filter == 'CUSTOMER' %}btn-info{% else %}btn-outline-secondary{% endif %}">Mijozlar</a>
+        <a href="?role=BARBER" class="btn btn-sm {% if role_filter == 'BARBER' %}btn-warning{% else %}btn-outline-secondary{% endif %}">Sartaroshlar</a>
+        <a href="?role=ADMIN" class="btn btn-sm {% if role_filter == 'ADMIN' %}btn-danger{% else %}btn-outline-secondary{% endif %}">Adminlar</a>
+    </div>
+</div>
+
+<div class="card card-custom">
+    <div class="table-responsive">
+        <table class="table table-custom table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>F.I.SH</th>
+                    <th>Telefon</th>
+                    <th>Rol</th>
+                    <th>Holati</th>
+                    <th>Ro'yxatdan o'tgan</th>
+                    <th>Amal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>#{{ u.id }}</td>
+                    <td><strong>{{ u.full_name }}</strong></td>
+                    <td>{{ u.phone_number }}</td>
+                    <td>
+                        {% if u.role == 'CUSTOMER' %}
+                            <span class="badge bg-info text-dark">Mijoz</span>
+                        {% elif u.role == 'BARBER' %}
+                            <span class="badge bg-warning text-dark">Sartarosh</span>
+                        {% else %}
+                            <span class="badge bg-danger">Administrator</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if u.is_active %}
+                            <span class="badge bg-success">Faol</span>
+                        {% else %}
+                            <span class="badge bg-danger">Bloklangan</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ u.date_joined|date:"d.m.Y H:i" }}</td>
+                    <td>
+                        <form method="POST" action="{% url 'dash-user-toggle' u.id %}" class="d-inline">
+                            {% csrf_token %}
+                            {% if u.is_active %}
+                                <button class="btn btn-outline-danger btn-sm" title="Bloklash"><i class="fa-solid fa-ban me-1"></i>Bloklash</button>
+                            {% else %}
+                                <button class="btn btn-outline-success btn-sm" title="Faollashtirish"><i class="fa-solid fa-unlock me-1"></i>Ochish</button>
+                            {% endif %}
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">Foydalanuvchilar topilmadi</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
